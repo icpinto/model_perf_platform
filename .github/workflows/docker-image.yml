@@ -3,7 +3,7 @@ name: CI/CD Workflow
 on:
   push:
     branches:
-      - main
+      - develop
 
 jobs:
   # Job to determine which components have changed
