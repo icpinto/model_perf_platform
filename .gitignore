@@ -1,0 +1,33 @@
+# Node.js (React)
+reactapp/node_modules/
+reactapp/build/
+reactapp/.env
+
+# Python (Flask and FastAPI)
+*.pyc
+__pycache__/
+flaskapp/.venv/
+fastapiapp/.venv/
+flaskapp/.env
+fastapiapp/.env
+
+# Docker
+docker-compose.override.yml
+**/Dockerfile.*     # Ignore Dockerfiles for specific environments if present (like Dockerfile.dev)
+*.log
+db-data/           
+
+# Environment files
+.env
+*.env
+
+# Editor and OS-specific files
+.vscode/
+.idea/
+*.DS_Store
+*.swp
+
+# GitHub Actions 
+.github/workflows/*-temp/
+.github/*-log.txt
+
