@@ -20,9 +20,9 @@ jobs:
       - name: Determine changed components
         id: changes
         run: |
-          echo "react_changed=$(git diff --name-only HEAD^ HEAD | grep -q '^reactapp/' && echo true || echo false)" >> $GITHUB_ENV
-          echo "flask_changed=$(git diff --name-only HEAD^ HEAD | grep -q '^flaskapp/' && echo true || echo false)" >> $GITHUB_ENV
-          echo "fastapi_changed=$(git diff --name-only HEAD^ HEAD | grep -q '^fastapiapp/' && echo true || echo false)" >> $GITHUB_ENV
+          echo "react_changed=$(git diff --name-only HEAD^ HEAD | grep -q '^reactapp/' && echo true || echo false)" 
+          echo "flask_changed=$(git diff --name-only HEAD^ HEAD | grep -q '^flaskapp/' && echo true || echo false)" 
+          echo "fastapi_changed=$(git diff --name-only HEAD^ HEAD | grep -q '^fastapiapp/' && echo true || echo false)"
 
   # Job for building and testing React frontend
   build-test-react:
