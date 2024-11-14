@@ -46,6 +46,8 @@ jobs:
           echo "::set-output name=flask_changed::$GITHUB_ENV/flask_changed"
           echo "::set-output name=fastapi_changed::$GITHUB_ENV/fastapi_changed"
 
+          run: echo "React Changed: ${{ needs.determine-changes.outputs.react_changed }}"
+
 
   # Job for building and testing React frontend
   build-test-react:
