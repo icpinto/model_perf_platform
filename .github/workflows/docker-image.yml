@@ -20,17 +20,11 @@ jobs:
       - name: Determine changed components
         id: changes
         run: |
-          # Check if files in reactapp, flaskapp, or fastapiapp have changed
-          if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
-            echo "react_changed=$(git diff --name-only HEAD~1 HEAD | grep -q '^reactapp/' && echo true || echo false)" 
-            echo "flask_changed=$(git diff --name-only HEAD~1 HEAD | grep -q '^flaskapp/' && echo true || echo false)"
-            echo "fastapi_changed=$(git diff --name-only HEAD~1 HEAD | grep -q '^fastapiapp/' && echo true || echo false)"
-          else
-            # No previous commit (first commit case)
-            echo "react_changed=false" 
-            echo "flask_changed=false" 
-            echo "fastapi_changed=false" 
-          fi
+          # Check changes in the current commit
+          echo "react_changed=$(git diff --name-only HEAD | grep -q '^reactapp/' && echo true || echo false)" 
+          echo "flask_changed=$(git diff --name-only HEAD | grep -q '^flaskapp/' && echo true || echo false)" 
+          echo "fastapi_changed=$(git diff --name-only HEAD | grep -q '^fastapiapp/' && echo true || echo false)"
+
   # Job for building and testing React frontend
   build-test-react:
     runs-on: ubuntu-latest
