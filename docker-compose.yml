@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # React app service (accessible from outside)
+  react-app:
+    build:
+      context: ./reactapp
+    ports:
+      - "3000:80"  # Exposing React app to the outside
+    depends_on:
+      - flask-app  # React depends on Flask app
+    networks:
+      - frontend  # Connected to frontend network for external access
+      - backend   # Connected to backend network for communication with Flask
+
+  # Flask app service (connects to FastAPI app and PostgreSQL)
+  flask-app:
+    build:
+      context: ./FlaskApp
+    ports:
+      - "5000:5000"  
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=app.py
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/model_performance_db
+    depends_on:
+      - db           # Flask depends on PostgreSQL
+      - fastapi-app  # Flask communicates with FastAPI app
+    networks:
+      - backend  # Flask app connects to backend network
+
+  # FastAPI app service (only connects to Flask, not exposed externally)
+  fastapi-app:
+    build:
+      context: ./FastAPI
+    ports:
+      - "8000:8000"  # FastAPI is only accessible internally, not exposed to the outside
+    depends_on:
+      - db  # FastAPI depends on PostgreSQL
+    networks:
+      - backend  # FastAPI app connects to backend network
+
+  # PostgreSQL database service
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: model_performance_db
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./init-db/create_database.sql:/docker-entrypoint-initdb.d/create_database.sql
+
+    networks:
+      - backend  # PostgreSQL is isolated in the backend network
+
+volumes:
+  db-data:
+
+networks:
+  frontend:
+    driver: bridge  # Frontend network for external access (only React can use this)
+  backend:
+    driver: bridge
+
+
