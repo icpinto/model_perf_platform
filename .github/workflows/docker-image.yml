@@ -21,9 +21,9 @@ jobs:
         id: changes
         run: |
           # Check changes in the current commit
-          echo "react_changed=$(git diff --name-only HEAD | grep -q '^reactapp/' && echo true || echo false)" 
-          echo "flask_changed=$(git diff --name-only HEAD | grep -q '^flaskapp/' && echo true || echo false)" 
-          echo "fastapi_changed=$(git diff --name-only HEAD | grep -q '^fastapiapp/' && echo true || echo false)"
+          echo "react_changed=$(git diff --name-only HEAD^ | grep -q '^reactapp/' && echo true || echo false)" 
+          echo "flask_changed=$(git diff --name-only HEAD^ | grep -q '^flaskapp/' && echo true || echo false)" 
+          echo "fastapi_changed=$(git diff --name-only HEAD^ | grep -q '^fastapiapp/' && echo true || echo false)"
 
   # Job for building and testing React frontend
   build-test-react:
