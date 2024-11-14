@@ -7,32 +7,43 @@ on:
 
 jobs:
   # Job to determine which components have changed
-  - name: Determine changed components
+  determine-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      react_changed: ${{ steps.changes.outputs.react_changed }}
+      flask_changed: ${{ steps.changes.outputs.flask_changed }}
+      fastapi_changed: ${{ steps.changes.outputs.fastapi_changed }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2  # Fetch the last two commits to ensure HEAD^ works
+
+      - name: Determine changed components
         id: changes
         run: |
-          # Check changes in the current commit
+          # Check changes in the current commit and set environment variables
           if git diff --name-only HEAD^ | grep -q '^reactapp/'; then
-            echo "react_changed=true" >> $GITHUB_ENV
+            echo "react_changed=true" 
           else
-            echo "react_changed=false" >> $GITHUB_ENV
+            echo "react_changed=false" 
           fi
           
           if git diff --name-only HEAD^ | grep -q '^flaskapp/'; then
-            echo "flask_changed=true" >> $GITHUB_ENV
+            echo "flask_changed=true" 
           else
-            echo "flask_changed=false" >> $GITHUB_ENV
+            echo "flask_changed=false" 
           fi
 
           if git diff --name-only HEAD^ | grep -q '^fastapiapp/'; then
-            echo "fastapi_changed=true" >> $GITHUB_ENV
+            echo "fastapi_changed=true" 
           else
-            echo "fastapi_changed=false" >> $GITHUB_ENV
+            echo "fastapi_changed=false" 
           fi
 
-        outputs:
-          react_changed: ${{ env.react_changed }}
-          flask_changed: ${{ env.flask_changed }}
-          fastapi_changed: ${{ env.fastapi_changed }}
+          echo "::set-output name=react_changed::${react_changed}"
+          echo "::set-output name=flask_changed::${flask_changed}"
+          echo "::set-output name=fastapi_changed::${fastapi_changed}"
 
   # Job for building and testing React frontend
   build-test-react:
