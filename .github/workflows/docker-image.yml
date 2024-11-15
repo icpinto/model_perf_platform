@@ -81,8 +81,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/reactapp ./reactapp
-          docker push ${{ secrets.DOCKER_USERNAME }}/reactapp
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/model_perf_platform_reactapp ./reactapp
+          docker push ${{ secrets.DOCKER_USERNAME }}/model_perf_platform_reactapp
 
   # Job for building and testing Flask backend
   build-test-flask:
@@ -125,8 +125,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/flaskapp ./flaskapp
-          docker push ${{ secrets.DOCKER_USERNAME }}/flaskapp
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/model_perf_platform_flaskapp ./flaskapp
+          docker push ${{ secrets.DOCKER_USERNAME }}/model_perf_platform_flaskapp
 
   # Job for building and testing FastAPI service
   build-test-fastapi:
@@ -169,7 +169,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/fastapiapp ./fastapiapp
-          docker push ${{ secrets.DOCKER_USERNAME }}/fastapiapp
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/model_perf_platform_fastapiapp ./fastapiapp
+          docker push ${{ secrets.DOCKER_USERNAME }}/model_perf_platform_fastapiapp
 
   
