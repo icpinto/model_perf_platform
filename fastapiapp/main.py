@@ -11,7 +11,7 @@ app = FastAPI()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Define the directory where models are stored
+# Define the directory where models are storeddd
 MODEL_DIR = "models"
 
 class Features(BaseModel):
