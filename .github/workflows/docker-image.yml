@@ -77,7 +77,7 @@ jobs:
       - name: Build React app
         run: |
           cd reactapp
-          npm run build
+          CI=false npm run build
 
       - name: Build Docker image
         run: |

@@ -27,7 +27,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import PerformanceHistoryTable from "./PerformanceHistoryTable";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
