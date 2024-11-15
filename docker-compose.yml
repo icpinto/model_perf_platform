@@ -3,8 +3,7 @@ version: '3.8'
 services:
   # React app service (accessible from outside)
   react-app:
-    build:
-      context: ./reactapp
+    image: icpinto/model_perf_platform_reactapp:latest  # Pull the image from Docker Hub
     ports:
       - "3000:80"  # Exposing React app to the outside
     depends_on:
@@ -15,8 +14,7 @@ services:
 
   # Flask app service (connects to FastAPI app and PostgreSQL)
   flask-app:
-    build:
-      context: ./flaskapp
+    image: icpinto/model_perf_platform_flaskapp:latest  # Pull the image from Docker Hub
     ports:
       - "5000:5000"  
     environment:
@@ -31,8 +29,7 @@ services:
 
   # FastAPI app service (only connects to Flask, not exposed externally)
   fastapi-app:
-    build:
-      context: ./fastapiapp
+    image: icpinto/model_perf_platform_fastapiapp:latest  # Pull the image from Docker Hub
     ports:
       - "8000:8000"  # FastAPI is only accessible internally, not exposed to the outside
     depends_on:
@@ -61,6 +58,4 @@ networks:
   frontend:
     driver: bridge  # Frontend network for external access (only React can use this)
   backend:
-    driver: bridge
-
-
+    driver: bridge  # Backend network for communication between services
