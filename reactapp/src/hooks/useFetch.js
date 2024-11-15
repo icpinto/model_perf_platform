@@ -14,10 +14,11 @@ const useFetch = (fetchFunction, dependencies = []) => {
       }
     };
     fetchData();
-  }, dependencies);
+    // Include fetchFunction in the dependency array to ensure it's updated correctly.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchFunction, ...dependencies]); // Spread additional dependencies dynamically.
 
   return { data, error };
 };
 
 export default useFetch;
-

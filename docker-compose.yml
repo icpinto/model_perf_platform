@@ -16,7 +16,7 @@ services:
   # Flask app service (connects to FastAPI app and PostgreSQL)
   flask-app:
     build:
-      context: ./FlaskApp
+      context: ./flaskapp
     ports:
       - "5000:5000"  
     environment:
@@ -32,7 +32,7 @@ services:
   # FastAPI app service (only connects to Flask, not exposed externally)
   fastapi-app:
     build:
-      context: ./FastAPI
+      context: ./fastapiapp
     ports:
       - "8000:8000"  # FastAPI is only accessible internally, not exposed to the outside
     depends_on:
