@@ -133,16 +133,6 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ needs.determine-changes.outputs.fastapi_changed == 'true' }}
     needs: determine-changes
-    services:
-      db:
-        image: postgres:13
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: model_performance_db
-        ports:
-          - 5432:5432
-        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=5
 
     steps:
       - name: Checkout code
@@ -203,7 +193,7 @@ jobs:
       - name: Run Load Test using Locust
         run: |
           docker run --rm -v ${{ github.workspace }}/fastapiapp/load-test:/mnt locustio/locust \
-            -f /mnt/locustfile.py --host=http://fastapiapp:8000
+            -f /mnt/locustfile.py --host=http://fastapiapp:8000 --run-time 5m
 
       - name: Query Prometheus for Resource Metrics
         run: |
