@@ -192,7 +192,8 @@ jobs:
 
       - name: Run Load Test using Locust
         run: |
-          timeout 1m docker run --rm -v ${{ github.workspace }}:/mnt locustio/locust -f /mnt/load_test_script.py --host=http://fastapiapp:8000 || echo "Timeout reached, continuing..." 
+           timeout 1m docker run --rm -v ${{ github.workspace }}/fastapiapp/load-test:/mnt locustio/locust \
+            -f /mnt/locustfile.py --host=http://fastapiapp:8000 || echo "Timeout reached, continuing..."
 
       - name: Query Prometheus for Resource Metrics
         run: |
