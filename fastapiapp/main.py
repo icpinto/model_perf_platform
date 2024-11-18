@@ -66,5 +66,5 @@ async def predict(data: Features):
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail="An error occurred during prediction.")
-##defas
+##defasdff
 
