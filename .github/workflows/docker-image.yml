@@ -144,19 +144,6 @@ jobs:
           - 5432:5432
         options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=5
 
-      cadvisor:
-        image: gcr.io/cadvisor/cadvisor:latest
-        ports:
-          - 8080:8080
-
-      prometheus:
-        image: prom/prometheus:latest
-        ports:
-          - 9090:9090
-        volumes:
-          - ./prometheus.yml:/etc/prometheus/prometheus.yml
-        options: >-
-          --config.file=/etc/prometheus/prometheus.yml
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -177,19 +164,46 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Docker image
+      - name: Set up custom Docker network
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/model_perf_platform_fastapiapp ./fastapiapp
-          docker push ${{ secrets.DOCKER_USERNAME }}/model_perf_platform_fastapiapp
+          docker network create fastapi-network
 
-      - name: Start FastAPI Application
+      - name: Run cAdvisor container
         run: |
-          docker run -d --name fastapiapp -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/model_perf_platform_fastapiapp
+          docker run -d \
+            --name cadvisor \
+            --network fastapi-network \
+            --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock \
+            --publish 8080:8080 \
+            --detach \
+            google/cadvisor:latest
 
-      - name: Perform Load Testing with Locust
+      - name: Run Prometheus container
         run: |
-          pip install locust
-          locust --headless --users 100 --spawn-rate 10 -H http://localhost:8000 -f ./load-test/locustfile.py --run-time 5m
+          docker run -d \
+            --name prometheus \
+            --network fastapi-network \
+            --mount type=bind,source=${{ github.workspace }}/prometheus.yml,destination=/etc/prometheus/prometheus.yml \
+            --add-host host.docker.internal:host-gateway \
+            -p 9090:9090 \
+            prom/prometheus
+
+      - name: Run FastAPI container
+        run: |
+          docker run -d \
+            --name fastapiapp \
+            --network fastapi-network \
+            -p 8000:8000 \
+            ${{ secrets.DOCKER_USERNAME }}/model_perf_platform_fastapiapp
+
+      - name: Wait for services to be ready
+        run: |
+          sleep 15  # Wait for containers to initialize
+
+      - name: Run Load Test using Locust
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/mnt locustio/locust \
+            -f /mnt/load_test_script.py --host=http://fastapiapp:8000
 
       - name: Query Prometheus for Resource Metrics
         run: |
