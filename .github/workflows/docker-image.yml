@@ -164,10 +164,12 @@ jobs:
             --name cadvisor \
             --network fastapi-network \
             --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock \
+            --mount type=bind,source=/sys/fs/cgroup,destination=/sys/fs/cgroup,readonly \
             --mount type=bind,source=/sys,destination=/sys,readonly \
             --mount type=bind,source=/var/lib/docker,destination=/var/lib/docker,readonly \
             --publish 8080:8080 \
             google/cadvisor:latest
+
       - name: Loggggggggggggggggggg
         run: |
           docker logs cadvisor
