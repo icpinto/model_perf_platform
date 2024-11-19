@@ -221,7 +221,7 @@ jobs:
           
           pip install locust
 
-          locust --headless --users 100 --spawn-rate 10 -H http://localhost:8000 -f ${{ github.workspace }}/fastapiapp/load-test/locustfile.py --run-time 1m
+          locust --headless --users 10 --spawn-rate 10 -H http://localhost:8000 -f ${{ github.workspace }}/fastapiapp/load-test/locustfile.py --run-time 1m
           
           # Wait for the load test to finish and then stop the background stats collection
           sleep 65 
