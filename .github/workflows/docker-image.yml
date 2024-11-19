@@ -190,11 +190,11 @@ jobs:
         run: |
           sleep 15  # Wait for containers to initialize
 
-      - name: Run Load Test using Locust
+      - name: Perform Load Testing with Locust
         run: |
-           docker run --rm -v ${{ github.workspace }}/fastapiapp/load-test:/mnt locustio/locust \
-            -f /mnt/locustfile.py --host=http//fastapi-app:8000 --run-time 1m
-
+          pip install locust
+          locust --headless --users 100 --spawn-rate 10 -H http://localhost:8000 -f ${{ github.workspace }}/load-test/locustfile.py --run-time 1m
+     
       - name: Query Prometheus for Resource Metrics
         run: |
           mkdir -p metrics
