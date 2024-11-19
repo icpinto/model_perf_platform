@@ -168,6 +168,8 @@ jobs:
             --detach \
             google/cadvisor:latest
 
+          docker logs cadvisor
+
       - name: Run Prometheus container
         run: |
           docker run -d \
