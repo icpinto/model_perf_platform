@@ -171,15 +171,22 @@ jobs:
       #       google/cadvisor:latest
 
 
-      # - name: Run Prometheus container
-      #   run: |
-      #     docker run -d \
-      #       --name prometheus \
-      #       --network fastapi-network \
-      #       --mount type=bind,source=${{ github.workspace }}/prometheus.yml,destination=/etc/prometheus/prometheus.yml \
-      #       --add-host host.docker.internal:host-gateway \
-      #       -p 9090:9090 \
-      #       prom/prometheus
+      - name: Run Node Exporter container
+        run: |
+          docker run -d \
+            --name node-exporter \
+            --network fastapi-network \
+            -p 9100:9100 \
+            quay.io/prometheus/node-exporter:latest
+
+      - name: Run Prometheus container
+        run: |
+          docker run -d \
+            --name prometheus \
+            --network fastapi-network \
+            --mount type=bind,source=${{ github.workspace }}/prometheus.yml,destination=/etc/prometheus/prometheus.yml \
+            -p 9090:9090 \
+            prom/prometheus
 
       - name: Run FastAPI container
         run: |
@@ -189,50 +196,42 @@ jobs:
             -p 8000:8000 \
             ${{ secrets.DOCKER_USERNAME }}/model_perf_platform_fastapiapp
 
-
-      # - name: Perform Load Testing with Locust
-      #   run: |
-      #     pip install locust
-      #     locust --headless --users 100 --spawn-rate 10 -H http://localhost:8000 -f ${{ github.workspace }}/fastapiapp/load-test/locustfile.py --run-time 1m
-     
-      # - name: Query Prometheus for Resource Metrics
-      #   run: |
-      #     mkdir -p metrics
-      #     # Query CPU usage for FastAPI container
-      #     curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(container_cpu_usage_seconds_total{container="fastapi-app"}[1m])' > metrics/cpu_usage.json
-      #     # Query memory usage for FastAPI container
-      #     curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=container_memory_usage_bytes{container="fastapi-app"}' > metrics/memory_usage.json
-      #     # Query network receive bytes for FastAPI container
-      #     curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(container_network_receive_bytes_total{container="fastapi-app"}[1m])' > metrics/network_receive.json
-      #     # Query network transmit bytes for FastAPI container
-      #     curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(container_network_transmit_bytes_total{container="fastapi-app"}[1m])' > metrics/network_transmit.json
-      #     # Query disk read/write bytes for FastAPI container
-      #     curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(container_fs_io_time_seconds_total{container="fastapi-app"}[1m])' > metrics/disk_io.json
-
-      # - name: Save Metrics as Artifacts
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: prometheus-metrics
-      #     path: metrics/
-
-      - name: Run load testing with Locust (in parallel with docker stats)
+      - name: Wait for services to be ready
         run: |
-          nohup docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}\t{{.PIDs}}" fastapiapp > docker_stats.log &
-          
+          for i in {1..10}; do
+            if curl -s http://localhost:8000; then
+              echo "FastAPI is ready!"
+              exit 0
+            fi
+            echo "Waiting for FastAPI to be ready..."
+            sleep 5
+          done
+          echo "FastAPI is not ready after waiting."
+          exit 1
+
+      - name: Run load testing with Locust
+        run: |
           pip install locust
+          locust --headless --users 100 --spawn-rate 10 -H http://localhost:8000 -f ${{ github.workspace }}/fastapiapp/load-test/locustfile.py --run-time 1m
 
-          locust --headless --users 1 --spawn-rate 10 -H http://localhost:8000 -f ${{ github.workspace }}/fastapiapp/load-test/locustfile.py --run-time 1m
-          
-          # Wait for the load test to finish and then stop the background stats collection
-          sleep 120 
-          
-          pkill -f "docker stats"
+      - name: Query Prometheus for Resource Metrics
+        run: |
+          mkdir -p metrics
+          # Query CPU usage for the Node Exporter
+          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(node_cpu_seconds_total[1m])' > metrics/cpu_usage.json
+          # Query memory usage
+          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=node_memory_MemAvailable_bytes' > metrics/memory_usage.json
+          # Query disk I/O
+          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(node_disk_io_time_seconds_total[1m])' > metrics/disk_io.json
+          # Query network usage
+          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(node_network_receive_bytes_total[1m])' > metrics/network_receive.json
+          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(node_network_transmit_bytes_total[1m])' > metrics/network_transmit.json
 
-      - name: Save Docker stats as artifact
+      - name: Save Metrics as Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: docker-stats
-          path: docker_stats.log
+          name: prometheus-metrics
+          path: metrics/
 
       
 
