@@ -173,6 +173,7 @@ jobs:
       - name: Loggggggggggggggggggg
         run: |
           docker logs cadvisor
+          docker ps -a
 
       - name: Run Prometheus container
         run: |
