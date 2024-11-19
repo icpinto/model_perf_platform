@@ -199,15 +199,15 @@ jobs:
         run: |
           mkdir -p metrics
           # Query CPU usage for FastAPI container
-          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(container_cpu_usage_seconds_total{container="fastapiapp"}[1m])' > metrics/cpu_usage.json
+          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(container_cpu_usage_seconds_total{container="fastapi-app"}[1m])' > metrics/cpu_usage.json
           # Query memory usage for FastAPI container
-          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=container_memory_usage_bytes{container="fastapiapp"}' > metrics/memory_usage.json
+          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=container_memory_usage_bytes{container="fastapi-app"}' > metrics/memory_usage.json
           # Query network receive bytes for FastAPI container
-          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(container_network_receive_bytes_total{container="fastapiapp"}[1m])' > metrics/network_receive.json
+          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(container_network_receive_bytes_total{container="fastapi-app"}[1m])' > metrics/network_receive.json
           # Query network transmit bytes for FastAPI container
-          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(container_network_transmit_bytes_total{container="fastapiapp"}[1m])' > metrics/network_transmit.json
+          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(container_network_transmit_bytes_total{container="fastapi-app"}[1m])' > metrics/network_transmit.json
           # Query disk read/write bytes for FastAPI container
-          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(container_fs_io_time_seconds_total{container="fastapiapp"}[1m])' > metrics/disk_io.json
+          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(container_fs_io_time_seconds_total{container="fastapi-app"}[1m])' > metrics/disk_io.json
 
       - name: Save Metrics as Artifacts
         uses: actions/upload-artifact@v3
