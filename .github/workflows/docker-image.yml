@@ -169,6 +169,9 @@ jobs:
             google/cadvisor:latest
 
           docker logs cadvisor
+      - name: Loggggggggggggggggggg
+        run: |
+          docker logs cadvisor
 
       - name: Run Prometheus container
         run: |
