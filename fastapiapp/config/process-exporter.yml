@@ -1,0 +1,5 @@
+process_names:
+  - name: "fastapi_app"
+    cmdline:
+      - ".*uvicorn.*fastapiapp.*"  # Matches FastAPI processes started by uvicorn
+
