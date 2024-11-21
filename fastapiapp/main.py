@@ -6,6 +6,7 @@ import os
 import xgboost as xgb
 from functools import lru_cache
 import logging
+from sklearn.preprocessing import StandardScaler
 
 app = FastAPI()
 
