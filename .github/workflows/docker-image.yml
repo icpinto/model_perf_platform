@@ -167,80 +167,80 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Set up custom Docker network
-        run: |
-          docker network create fastapi-network
+      # - name: Set up custom Docker network
+      #   run: |
+      #     docker network create fastapi-network
 
-      - name: Run Node Exporter container
-        run: |
-          docker run -d \
-            --name node-exporter \
-            --network fastapi-network \
-            -p 9100:9100 \
-            quay.io/prometheus/node-exporter:latest
+      # - name: Run Node Exporter container
+      #   run: |
+      #     docker run -d \
+      #       --name node-exporter \
+      #       --network fastapi-network \
+      #       -p 9100:9100 \
+      #       quay.io/prometheus/node-exporter:latest
 
-      - name: Run Prometheus container
-        run: |
-          docker run -d \
-            --name prometheus \
-            --network fastapi-network \
-            --mount type=bind,source=${{ github.workspace }}/prometheus.yml,destination=/etc/prometheus/prometheus.yml \
-            -p 9090:9090 \
-            prom/prometheus
+      # - name: Run Prometheus container
+      #   run: |
+      #     docker run -d \
+      #       --name prometheus \
+      #       --network fastapi-network \
+      #       --mount type=bind,source=${{ github.workspace }}/prometheus.yml,destination=/etc/prometheus/prometheus.yml \
+      #       -p 9090:9090 \
+      #       prom/prometheus
 
-      - name: Run FastAPI container
-        run: |
-          docker run -d \
-            --name fastapiapp \
-            --network fastapi-network \
-            -p 8000:8000 \
-            ${{ secrets.DOCKER_USERNAME }}/model_perf_platform_fastapiapp
+      # - name: Run FastAPI container
+      #   run: |
+      #     docker run -d \
+      #       --name fastapiapp \
+      #       --network fastapi-network \
+      #       -p 8000:8000 \
+      #       ${{ secrets.DOCKER_USERNAME }}/model_perf_platform_fastapiapp
 
-      - name: Wait for services to be ready
-        run: |
-          for i in {1..10}; do
-            if curl -s http://localhost:8000; then
-              echo "FastAPI is ready!"
-              exit 0
-            fi
-            echo "Waiting for FastAPI to be ready..."
-            sleep 5
-          done
-          echo "FastAPI is not ready after waiting."
-          exit 1
+      # - name: Wait for services to be ready
+      #   run: |
+      #     for i in {1..10}; do
+      #       if curl -s http://localhost:8000; then
+      #         echo "FastAPI is ready!"
+      #         exit 0
+      #       fi
+      #       echo "Waiting for FastAPI to be ready..."
+      #       sleep 5
+      #     done
+      #     echo "FastAPI is not ready after waiting."
+      #     exit 1
 
       # - name: Run load testing with Locust
       #   run: |
       #     pip install locust
       #     locust --headless --users 1000 --spawn-rate 10 -H http://localhost:8000 -f ${{ github.workspace }}/fastapiapp/load-test/locustfile.py --run-time 1m --html locust_report.html --csv locust_results
 
-      - name: Query Prometheus for Resource Metrics
-        run: |
-          mkdir -p metrics
-          # Query CPU usage for the Node Exporter
-          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(node_cpu_seconds_total[5m])' > metrics/cpu_usage.json
-          # Query memory usage
-          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=node_memory_MemAvailable_bytes' > metrics/memory_usage.json
-          # Query disk I/O
-          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(node_disk_io_time_seconds_total[5m])' > metrics/disk_io.json
-          # Query network usage
-          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(node_network_receive_bytes_total[5m])' > metrics/network_receive.json
-          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(node_network_transmit_bytes_total[5m])' > metrics/network_transmit.json
+      # - name: Query Prometheus for Resource Metrics
+      #   run: |
+      #     mkdir -p metrics
+      #     # Query CPU usage for the Node Exporter
+      #     curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(node_cpu_seconds_total[5m])' > metrics/cpu_usage.json
+      #     # Query memory usage
+      #     curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=node_memory_MemAvailable_bytes' > metrics/memory_usage.json
+      #     # Query disk I/O
+      #     curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(node_disk_io_time_seconds_total[5m])' > metrics/disk_io.json
+      #     # Query network usage
+      #     curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(node_network_receive_bytes_total[5m])' > metrics/network_receive.json
+      #     curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(node_network_transmit_bytes_total[5m])' > metrics/network_transmit.json
 
-      - name: Save Metrics as Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: prometheus-metrics
-          path: metrics/
+      # - name: Save Metrics as Artifacts
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: prometheus-metrics
+      #     path: metrics/
         
-      - name: Save Locust Test Results as Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: locust-test-results
-          path: |
-            locust_report.html
-            locust_results.csv
-            locust_results_stats.csv
+      # - name: Save Locust Test Results as Artifacts
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: locust-test-results
+      #     path: |
+      #       locust_report.html
+      #       locust_results.csv
+      #       locust_results_stats.csv
 
       - name: Build Docker image
         run: |
