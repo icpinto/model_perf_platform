@@ -108,8 +108,8 @@ reactapp/
 │   ├── setupTests.js                   # Test setup file
 │   ├── reportWebVitals.js              # Web vitals reporting script
 └── └── src/utils/api.js                # API utility functions
-└── └── src/utils/errorHandler.js       # React error handling
-
+└── └── src/utils/errorHandler.js       # React error handling```
+```
 ---
 ## Installation and Setup
 
