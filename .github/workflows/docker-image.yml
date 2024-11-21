@@ -171,15 +171,13 @@ jobs:
       #       google/cadvisor:latest
 
 
-      - name: Run Process Exporter container
+      - name: Run Node Exporter container
         run: |
           docker run -d \
-            --name process-exporter \
+            --name node-exporter \
             --network fastapi-network \
-            --mount type=bind,source=${{ github.workspace }}/fastapiapp/config/process-exporter.yml,destination=/config/process-exporter.yml,readonly \
-            -p 9256:9256 \
-            ncabatoff/process-exporter:latest \
-            --config.path=/config/process-exporter.yml
+            -p 9100:9100 \
+            quay.io/prometheus/node-exporter:latest
 
       - name: Run Prometheus container
         run: |
@@ -220,10 +218,15 @@ jobs:
         run: |
           mkdir -p metrics
           # Query CPU usage for the Node Exporter
-          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=(process_cpu_seconds_total{groupname="fastapi_app"}[1m])' > metrics/cpu_usage.json
+          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(node_cpu_seconds_total[5m])' > metrics/cpu_usage.json
           # Query memory usage
-          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=process_resident_memory_bytes{groupname="fastapi_app"}' > metrics/memory_usage.json
-         
+          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=node_memory_MemAvailable_bytes' > metrics/memory_usage.json
+          # Query disk I/O
+          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(node_disk_io_time_seconds_total[5m])' > metrics/disk_io.json
+          # Query network usage
+          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(node_network_receive_bytes_total[5m])' > metrics/network_receive.json
+          curl -G 'http://localhost:9090/api/v1/query' --data-urlencode 'query=rate(node_network_transmit_bytes_total[5m])' > metrics/network_transmit.json
+
       - name: Save Metrics as Artifacts
         uses: actions/upload-artifact@v3
         with:

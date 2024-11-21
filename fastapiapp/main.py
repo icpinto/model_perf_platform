@@ -3,22 +3,24 @@ from pydantic import BaseModel, Field
 import joblib
 import numpy as np
 import os
-import logging
 import xgboost as xgb
+from functools import lru_cache
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
 app = FastAPI()
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 # Define the directory where models are storeddd
 MODEL_DIR = "models"
+
+# Use  ProcessPoolExecutor for CPU-bound tasks)
+executor = ProcessPoolExecutor() 
 
 class Features(BaseModel):
     features: list[float]
     model_version: str
     model_type: str
 
+@lru_cache(maxsize=2)
 def get_model_path(model_version: str, model_type: str) -> str:
     """
     Constructs the full path for the model based on its type and version.
@@ -26,6 +28,7 @@ def get_model_path(model_version: str, model_type: str) -> str:
     model_filename = f"{model_type}_{model_version}.pkl"
     return os.path.join(MODEL_DIR, model_filename)
 
+@lru_cache(maxsize=2)
 def load_model(model_version: str, model_type: str):
     """
     Load a model based on model_version and model_type.
@@ -51,14 +54,24 @@ def make_prediction(model, features: list[float]) -> int:
     prediction = model.predict(features_array)
     return int(prediction[0])
 
+def async_predict(model_version: str, model_type: str, features: list[float]):
+    """
+    Asynchronously load the model and make a prediction.
+    This function is called in a separate thread or process to avoid blocking.
+    """
+    model = load_model(model_version, model_type)
+    return make_prediction(model, features)
+
 @app.post("/predict")
 async def predict(data: Features):
     try:
-        model = load_model(data.model_version, data.model_type)
-        
-        features = xgb.DMatrix(np.array(data.features).reshape(1, -1))
-        
-        prediction = model.predict(features)
+        # Run the CPU-bound task in a separate process
+        prediction = await app.state.executor.submit(
+            async_predict, 
+            data.model_version, 
+            data.model_type, 
+            data.features
+        )
         
         return {"prediction": int(prediction[0])}
 
