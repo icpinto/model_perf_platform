@@ -6,16 +6,50 @@ from datetime import datetime
 import config
 from database import execute_query, insert_model_run
 from sqlalchemy import text
+from sklearn.preprocessing import LabelEncoder
+import joblib
+
+ENCODER_DIR = "encoders"
 
 predict_blueprint = Blueprint('predict', __name__)
 models_blueprint = Blueprint('models', __name__)
 history_blueprint = Blueprint('history', __name__)
+
+# Load the LabelEncoder
+label_encoder = joblib.load('models/label_encoder.pkl')
+
+@lru_cache(maxsize=2)
+def get_encoder_path(model_version: str, model_type: str) -> str:
+    """
+    Constructs the full path for the label encoder based on its type and version.
+    """
+    encoder_filename = f"{model_type}_{model_version}_label_encoder.pkl"
+    return os.path.join(ENCODER_DIR, encoder_filename)
+
+@lru_cache(maxsize=2)
+def load_encoder(model_version: str, model_type: str):
+    """
+    Load the label encoder based on model_version and model_type.
+    """
+    encoder_path = get_encoder_path(model_version, model_type)
+    
+    # Check if the encoder file exists
+    if not os.path.exists(encoder_path):
+        raise FileNotFoundError(f"Label encoder for model '{model_type}' version '{model_version}' not found.")
+    
+    with open(encoder_path, "rb") as f:
+        encoder = joblib.load(f)
+    
+    return encoder
+
 
 # Prediction route
 @predict_blueprint.route('/predict', methods=['POST'])
 def predict():
     try:
         file, model_type, model_version = validate_request_data(request)
+
+         encoder = load_encoder(model_version, model_type)
         
         df = pd.read_csv(file)
         validate_csv_columns(df, config.Config.FEATURES_COLUMNS + ['quality'])
@@ -47,8 +81,15 @@ def validate_csv_columns(df, required_columns):
         if column not in df.columns:
             raise ValueError(f"CSV file must contain '{column}' column")
 
-def prepare_features_labels(df, feature_columns):
-    return df[feature_columns].values.tolist(), df['quality'].tolist()
+def prepare_features_labels(df, feature_columns, encoder):
+    
+    features = df[feature_columns].values.tolist()
+    actual_labels = df['quality'].apply(lambda x: 'Low' if x <= 4 else 'Medium' if x <= 6 else 'High').tolist()
+    
+    # Apply label encoding to the actual labels (returns encoded labels)
+    encoded_labels = encoder.transform(actual_labels)
+    
+    return features, encoded_labels
 
 def fetch_predictions(features, model_type, model_version):
     predictions = []

@@ -12,6 +12,9 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . /app
 
+# Specify the directory containing encoder files
+COPY encoders /app/encoders
+
 # Install dependencies
 RUN pip install -r requirements.txt
 
