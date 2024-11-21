@@ -9,6 +9,7 @@ from sqlalchemy import text
 from sklearn.preprocessing import LabelEncoder
 import joblib
 from functools import lru_cache
+import os
 
 ENCODER_DIR = "encoders"
 
