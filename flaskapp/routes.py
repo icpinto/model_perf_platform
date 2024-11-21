@@ -49,7 +49,7 @@ def predict():
     try:
         file, model_type, model_version = validate_request_data(request)
 
-         encoder = load_encoder(model_version, model_type)
+        encoder = load_encoder(model_version, model_type)
         
         df = pd.read_csv(file)
         validate_csv_columns(df, config.Config.FEATURES_COLUMNS + ['quality'])
