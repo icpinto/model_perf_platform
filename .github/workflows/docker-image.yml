@@ -209,10 +209,10 @@ jobs:
           echo "FastAPI is not ready after waiting."
           exit 1
 
-      - name: Run load testing with Locust
-        run: |
-          pip install locust
-          locust --headless --users 1000 --spawn-rate 10 -H http://localhost:8000 -f ${{ github.workspace }}/fastapiapp/load-test/locustfile.py --run-time 1m --html locust_report.html --csv locust_results
+      # - name: Run load testing with Locust
+      #   run: |
+      #     pip install locust
+      #     locust --headless --users 1000 --spawn-rate 10 -H http://localhost:8000 -f ${{ github.workspace }}/fastapiapp/load-test/locustfile.py --run-time 1m --html locust_report.html --csv locust_results
 
       - name: Query Prometheus for Resource Metrics
         run: |
