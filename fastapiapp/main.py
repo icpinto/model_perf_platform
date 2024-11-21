@@ -3,14 +3,10 @@ from pydantic import BaseModel, Field
 import joblib
 import numpy as np
 import os
-import logging
 import xgboost as xgb
 from functools import lru_cache
 
 app = FastAPI()
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # Define the directory where models are storeddd
 MODEL_DIR = "models"
@@ -69,4 +65,4 @@ async def predict(data: Features):
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail="An error occurred during prediction.")
-#gfgfgd
+#gfg
