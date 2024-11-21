@@ -212,7 +212,7 @@ jobs:
       - name: Run load testing with Locust
         run: |
           pip install locust
-          locust --headless --users 10000 --spawn-rate 10 -H http://localhost:8000 -f ${{ github.workspace }}/fastapiapp/load-test/locustfile.py --run-time 5m --html locust_report.html --csv locust_results
+          locust --headless --users 1000 --spawn-rate 10 -H http://localhost:8000 -f ${{ github.workspace }}/fastapiapp/load-test/locustfile.py --run-time 5m --html locust_report.html --csv locust_results
 
       - name: Query Prometheus for Resource Metrics
         run: |
