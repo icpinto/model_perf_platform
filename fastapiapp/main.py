@@ -5,6 +5,7 @@ import numpy as np
 import os
 import logging
 import xgboost as xgb
+from functools import lru_cache
 
 app = FastAPI()
 
@@ -19,6 +20,7 @@ class Features(BaseModel):
     model_version: str
     model_type: str
 
+@lru_cache(maxsize=2)
 def get_model_path(model_version: str, model_type: str) -> str:
     """
     Constructs the full path for the model based on its type and version.
@@ -26,6 +28,7 @@ def get_model_path(model_version: str, model_type: str) -> str:
     model_filename = f"{model_type}_{model_version}.pkl"
     return os.path.join(MODEL_DIR, model_filename)
 
+@lru_cache(maxsize=2)
 def load_model(model_version: str, model_type: str):
     """
     Load a model based on model_version and model_type.
