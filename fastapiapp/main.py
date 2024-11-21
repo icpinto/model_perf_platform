@@ -5,15 +5,12 @@ import numpy as np
 import os
 import xgboost as xgb
 from functools import lru_cache
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+
 
 app = FastAPI()
 
 # Define the directory where models are storeddd
-MODEL_DIR = "models"
-
-# Use  ProcessPoolExecutor for CPU-bound tasks)
-executor = ProcessPoolExecutor() 
+MODEL_DIR = "models" 
 
 class Features(BaseModel):
     features: list[float]
@@ -54,24 +51,15 @@ def make_prediction(model, features: list[float]) -> int:
     prediction = model.predict(features_array)
     return int(prediction[0])
 
-def async_predict(model_version: str, model_type: str, features: list[float]):
-    """
-    Asynchronously load the model and make a prediction.
-    This function is called in a separate thread or process to avoid blocking.
-    """
-    model = load_model(model_version, model_type)
-    return make_prediction(model, features)
 
 @app.post("/predict")
 async def predict(data: Features):
     try:
-        # Run the CPU-bound task in a separate process
-        prediction = await app.state.executor.submit(
-            async_predict, 
-            data.model_version, 
-            data.model_type, 
-            data.features
-        )
+        model = load_model(data.model_version, data.model_type)
+        
+        features = xgb.DMatrix(np.array(data.features).reshape(1, -1))
+        
+        prediction = model.predict(features)
         
         return {"prediction": int(prediction[0])}
 
@@ -80,4 +68,3 @@ async def predict(data: Features):
     except Exception as e:
         raise HTTPException(status_code=500, detail="An error occurred during prediction.")
 
-#dffd
