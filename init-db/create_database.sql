@@ -61,7 +61,7 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM models WHERE model_type = 'Logistic Regression') THEN
         INSERT INTO models (model_type, hyperparameters, description)
         VALUES
-            ('Logistic Regression', '{"penalty": "l2", "C": 1.0, "solver": "lbfgs"}', 'Logistic regression model for binary classification');
+            ('XGBoost', '{"objective": "multi:softmax", "num_class": 3, "eval_metric": "mlogloss", "random_state": 42}',  'Predicting wine quality based on red wine features. Using XGBoost for classification of quality into 3 categories: Low, Medium, High.');
     END IF;
 END $$;
 
