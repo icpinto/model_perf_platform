@@ -154,6 +154,12 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/model_perf_platform_fastapiapp ./fastapiapp
+          docker push ${{ secrets.DOCKER_USERNAME }}/model_perf_platform_fastapiapp
+
+
       - name: Set up custom Docker network
         run: |
           docker network create fastapi-network
