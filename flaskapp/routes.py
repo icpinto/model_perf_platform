@@ -53,7 +53,7 @@ def predict():
         df = pd.read_csv(file)
         validate_csv_columns(df, config.Config.FEATURES_COLUMNS + ['quality'])
         
-        features, actual_labels = prepare_features_labels(df, config.Config.FEATURES_COLUMNS)
+        features, actual_labels = prepare_features_labels(df, config.Config.FEATURES_COLUMNS,encoder)
         predictions = fetch_predictions(features, model_type, model_version)
         
         metrics = calculate_metrics(actual_labels, predictions)
