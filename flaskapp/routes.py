@@ -8,6 +8,7 @@ from database import execute_query, insert_model_run
 from sqlalchemy import text
 from sklearn.preprocessing import LabelEncoder
 import joblib
+from functools import lru_cache
 
 ENCODER_DIR = "encoders"
 
