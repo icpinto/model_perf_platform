@@ -59,7 +59,7 @@ def predict():
         metrics = calculate_metrics(actual_labels, predictions)
         save_metrics_to_db(metrics, model_version, dataset_version=1.0)
         
-        return jsonify({"predictions": predictions, "metrics": metrics})
+        return jsonify({"predictions": predictions, "metrics": metrics, "realvalues": actual_labels})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
