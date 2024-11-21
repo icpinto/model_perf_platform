@@ -5,8 +5,12 @@ import numpy as np
 import os
 import xgboost as xgb
 from functools import lru_cache
+import logging
 
 app = FastAPI()
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Define the directory where models and scalers are stored
 MODEL_DIR = "models"

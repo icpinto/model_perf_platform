@@ -15,6 +15,9 @@ COPY . .
 # Specify the directory containing model files
 COPY models /app/models
 
+# Specify the directory containing scaler files
+COPY scalers /app/scalers
+
 # Expose port 8000 for the FastAPI app
 EXPOSE 8000
 
