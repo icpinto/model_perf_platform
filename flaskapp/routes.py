@@ -15,9 +15,6 @@ predict_blueprint = Blueprint('predict', __name__)
 models_blueprint = Blueprint('models', __name__)
 history_blueprint = Blueprint('history', __name__)
 
-# Load the LabelEncoder
-label_encoder = joblib.load('models/label_encoder.pkl')
-
 @lru_cache(maxsize=2)
 def get_encoder_path(model_version: str, model_type: str) -> str:
     """
